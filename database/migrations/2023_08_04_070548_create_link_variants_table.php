@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('link_variants', function (Blueprint $table) {
             $table->id();
-            $table->integer('productGroup');
-            $table->integer('optionGroup');
-            $table->integer('option');
+            $table->string('productGroup');
+            $table->string('optionGroup');
+            $table->string('option');
             $table->timestamps();
         });
     }

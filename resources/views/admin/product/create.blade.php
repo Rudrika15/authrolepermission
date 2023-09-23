@@ -9,7 +9,7 @@
         </div>
     </div>
     <div class="card-body">
-        <form id="create" method="POST" enctype="multipart/form-data">
+        <form id="productForm" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-3">
                 <label for="exampleInputEmail1" class="form-label">Title</label>
@@ -28,7 +28,7 @@
             <div class="mb-3">
                 <label for="exampleInputEmail1" class="form-label">Photo</label>
                 <input type="file" class="form-control" id="photo" name="photo" />
-                <!-- <img id="preview-photo" src="/product/default.png" name="preview-photo" class="mt-3" width="100px" height="100px"> -->
+                <img id="preview-photo" src="/product/default.png" name="preview-photo" class="mt-3" width="100px" height="100px"> 
             </div>
 
             <div class="mb-3">
@@ -73,9 +73,47 @@
                     </div>
                 </div>
             </div>
-
-            <span id="Add" class="btn btn-success">Add</span>
-            <span id="Remove" class="btn btn-danger">Remove</span>
+           
+            <div class='row pt-3'>
+                <div class='col'>
+                    <label for='exampleInputEmail1' class='form-label'>Option Group</label>
+                   
+                    <select class='form-control' name='productGroupId'>
+                        <option selected disabled>Select Option Group</option>
+                        @php
+                            $groupedOptions = collect($optionGroup)->groupBy('productGroup');
+                        @endphp
+                
+                        @foreach ($groupedOptions as $productGroupId => $options)
+                            <option value="{{ $productGroupId }}">
+                                @foreach ($options as $option)
+                                    {{ $option->optionGroup }}: {{ $option->option }}, 
+                                @endforeach
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                {{-- <div class='col'>
+                        <label for='exampleInputEmail1' class='form-label'>Option </label>
+                        <input type='text' class='form-control' placeholder='Enter option' name='option'>
+                </div> --}}
+                <div class='col'>
+                        <label for='exampleInputEmail1' class='form-label'>Stock</label>
+                        <input type='text' class='form-control' placeholder='Enter stock' id="stock" name='stock'>
+                </div>
+                    <div class='col'>
+                        <label for='exampleInputEmail1' class='form-label'>Price</label>
+                        <input type='text' class='form-control' placeholder='Enter price' id="price" name='price'>  
+                    </div>
+                </div>
+                <div class='row pt-3'> 
+                    <div class='col'> 
+                        <label for='exampleInputEmail1' class='form-label'>Product Gallery <sup class='text-danger'> (To add multiple photo press control button and select image)</sup></label> 
+                            <input type='file' multiple class='form-control' id='productGallery' name='productGallery[]' />
+                    </div>
+                </div>
+            <span id="Add" class="btn btn-success mt-3">Add</span>
+            <span id="Remove" class="btn btn-danger mt-3">Remove</span>
             <div id="textboxDiv"></div>
 
 
@@ -95,6 +133,7 @@
     <!-- FOR SWEET ALERT -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    
     <script type="text/javascript">
         $(document).ready(function() {
             $.ajaxSetup({
@@ -103,13 +142,7 @@
                 }
             });
 
-            // $('#photo').change(function() {
-            //     let reader = new FileReader();
-            //     reader.onload = (e) => {
-            //         $('#preview-photo').attr('src', e.target.result);
-            //     }
-            //     reader.readAsDataURL(this.files[0]);
-            // });
+            
             $("#Add").on("click", function() {
                 $("#textboxDiv").append("<div class='row pt-3'><div class='col'><label for='exampleInputEmail1' class='form-label'>Option Group</label><select class='form-control'  name='optionGroupId'><option selected disble>Select Option Group</option><option>Size</option><option>Color</option></select></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Option </label><input type='text' class='form-control' placeholder='Enter option' name='option'></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Stock</label><input type='text' class='form-control' placeholder='Enter stock' name='stock'></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Price</label><input type='text' class='form-control' placeholder='Enter price' name='price'>  </div></div><div class='row pt-3'> <div class='col'> <label for='exampleInputEmail1' class='form-label'>Product Gallery <sup class='text-danger'> (To add multiple photo press control button and select image)</sup></label> <input type='file' multiple class='form-control' id='files' name='files' /></div></div>");
             });
@@ -117,13 +150,24 @@
                 $("#textboxDiv").children().last().remove();
             });
 
-            $("#create").on("submit", function(e) {
+            $('#photo').change(function() {
+                let reader = new FileReader();
+                reader.onload = (e) => {
+                    $('#preview-photo').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(this.files[0]);
+            });
+            $("#productForm").submit(function(e) {
                 e.preventDefault();
-                var formData = $("#create").serialize();
+                var formData = new FormData(this);
                 $.ajax({
-                    url: "{{route('product.store')}}",
+                    type: 'POST',
+                    url: "{{url('product/store')}}",
                     data: formData,
-                    type: "post",
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    
                     success: function(response) {
                         if (response.status == 200) {
                             Swal.fire(

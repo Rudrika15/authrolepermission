@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('product_stock_prices', function (Blueprint $table) {
             $table->id();
             $table->string('productGroupId');
+            $table->integer('productId');
             $table->integer('stock');
             $table->float('price');
             $table->timestamps();

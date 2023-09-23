@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\LinkVariant;
+use App\Models\Optiongroup;
 use App\Models\ProductGallery;
+use App\Models\ProductStockPrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 
@@ -40,9 +43,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        $optionGroup=LinkVariant::all();
         $category = Category::all();
-        return view('admin.product.create', compact('category'));
+        return view('admin.product.create', compact('category','optionGroup'));
     }
 
     /**
@@ -50,13 +53,13 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        
-        // $photoName = time() . '.' . $request->photo->extension();
-        // $request->photo->move(public_path('product'), $photoName);
         $product = new Product();
         $product->title = $request->title;
         $product->catId = $request->catId;
-        $product->photo ="abc";
+        if ($request->photo) {
+            $product->photo = time() . '.' . $request->photo->extension();
+            $request->photo->move(public_path('product'),  $product->photo);
+        }
         $product->detail = $request->detail;
         $product->tag = $request->tag;
         if (isset($request->startDate))
@@ -82,20 +85,39 @@ class ProductController extends Controller
         else
             $product->isRecommend = 0;
 
-        // $productId = $product->id;
+       
+        $product->save();
 
-        // if ($request->hasFile('gallery')) {
-        //     foreach ($request->file('gallery') as $file) {
-        //         $fileName = time() . '_' . $file->getClientOriginalName();
-        //         $file->storeAs('public/gallery', $fileName);
+        $productStockPrice=new ProductStockPrice();
 
-        //         $productGallery = new ProductGallery();
-        //         $productGallery->productId = $productId;
-        //         $productGallery->photo = $fileName;
-        //         $productGallery->save();
-        //     }
-        // }
-        if ($product->save()) {
+        $productStockPrice->productGroupId=$request->productGroupId;
+        $productStockPrice->productId=$request->productId;
+        $productStockPrice->stock=$request->stock;
+        $productStockPrice->price=$request->price;
+        $productStockPrice->save();
+
+        // $productGallery=new ProductGallery();
+        // $productGallery->productGroupId=$request->productGroupId;
+         
+        $productGroupId=$request->productGroupId;
+
+        if($request->hasFile('productGallery')){
+            $productGallery=new ProductGallery();
+            $productGallery->productGroupId=$productGroupId;
+            $productGallery->productGallery = $request->file('productGallery');
+
+            foreach ($productGallery as $galleryImage) {
+                $imageName = uniqid() . '.' . $galleryImage->getClientOriginalExtension();        
+                $galleryImage->storeAs('gallery', $imageName, 'public');  
+            }
+    
+           
+            $productGallery->save();
+        }
+        
+        
+       
+        if ($product) {
             return response()->json([
                 'status' => 200,
             ]);

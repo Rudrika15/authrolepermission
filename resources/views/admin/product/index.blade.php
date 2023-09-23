@@ -8,8 +8,8 @@
             </div>
         </div>
     </div>
-    <div class="card-body">
-        <table class="table table-bordered data-table">
+    <div class="card-body table-responsive">
+        <table class="table  table-bordered data-table">
             <thead>
                 <tr>
                     <th>No</th>
@@ -56,11 +56,12 @@
                 {
                     data: "photo",
                     name: "photo",
-                    orderable: false,
+                    
                     render: function(data, type, full, meta) {
                         // Check if the "data" is empty or null
                         if (data) {
-                            return '<img src="{{url(' / photo ')}}/' + data + '" alt="photo" style="max-width: 100px; max-height: 100px;">';
+                            // return '<img src="{{url('/product')}}/' + data + '" alt="photo" style="max-width: 100px; max-height: 100px;">';
+                            return '<img src="{{url('/product')}}/'+ data + '" alt="Logo" style="max-width: 100px; max-height: 100px;">';
                         }
                         return 'No photo'; // Display "No photo" if data is empty or null
                     }
