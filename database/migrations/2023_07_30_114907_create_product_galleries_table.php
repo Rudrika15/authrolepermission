@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('product_galleries', function (Blueprint $table) {
             $table->id();
-            $table->integer('productGroupId');
+            $table->longtext('productGroupId');
             $table->string('productGallery');
             $table->timestamps();
         });

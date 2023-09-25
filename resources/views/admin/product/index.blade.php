@@ -70,11 +70,28 @@
                     data: "detail",
                     name: "detail",
                     orderable: false,
+                    render: function(data, type, full, meta) {
+                        if (data) {
+                            var tempDiv = document.createElement("div");
+                            tempDiv.innerHTML = data;
+                            // Return the text content (without HTML tags)
+                            return tempDiv.textContent || tempDiv.innerText || "";
+                        }
+                        return 'No detail';
+                    }
                 },
                 {
                     data: "tag",
                     name: "tag",
-                    orderable: false,
+                    render: function(data, type, full, meta) {
+                        if (data) {
+                            var tempDiv = document.createElement("div");
+                            tempDiv.innerHTML = data;
+                            // Return the text content (without HTML tags)
+                            return tempDiv.textContent || tempDiv.innerText || "";
+                        }
+                        return 'No Tag';
+                    }
                 },
                 {
                     data: "isTrending",

@@ -28,7 +28,7 @@
             <div class="mb-3">
                 <label for="exampleInputEmail1" class="form-label">Photo</label>
                 <input type="file" class="form-control" id="photo" name="photo" />
-                <img id="preview-photo" src="/product/default.png" name="preview-photo" class="mt-3" width="100px" height="100px"> 
+                <img id="preview-photo" src="{{asset('/product/default.png')}}" name="preview-photo" class="mt-3" width="100px" height="100px"> 
             </div>
 
             <div class="mb-3">
@@ -78,7 +78,7 @@
                 <div class='col'>
                     <label for='exampleInputEmail1' class='form-label'>Option Group</label>
                    
-                    <select class='form-control' name='productGroupId'>
+                    <select class='form-control' id='productGroupId' name='productGroupId[]'>
                         <option selected disabled>Select Option Group</option>
                         @php
                             $groupedOptions = collect($optionGroup)->groupBy('productGroup');
@@ -93,17 +93,17 @@
                         @endforeach
                     </select>
                 </div>
-                {{-- <div class='col'>
+                {{-- <div class='col'> 
                         <label for='exampleInputEmail1' class='form-label'>Option </label>
                         <input type='text' class='form-control' placeholder='Enter option' name='option'>
                 </div> --}}
                 <div class='col'>
                         <label for='exampleInputEmail1' class='form-label'>Stock</label>
-                        <input type='text' class='form-control' placeholder='Enter stock' id="stock" name='stock'>
+                        <input type='text' class='form-control' placeholder='Enter stock' id="stock" name='stock[]'>
                 </div>
                     <div class='col'>
                         <label for='exampleInputEmail1' class='form-label'>Price</label>
-                        <input type='text' class='form-control' placeholder='Enter price' id="price" name='price'>  
+                        <input type='text' class='form-control' placeholder='Enter price' id="price" name='price[]'>  
                     </div>
                 </div>
                 <div class='row pt-3'> 
@@ -144,7 +144,9 @@
 
             
             $("#Add").on("click", function() {
-                $("#textboxDiv").append("<div class='row pt-3'><div class='col'><label for='exampleInputEmail1' class='form-label'>Option Group</label><select class='form-control'  name='optionGroupId'><option selected disble>Select Option Group</option><option>Size</option><option>Color</option></select></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Option </label><input type='text' class='form-control' placeholder='Enter option' name='option'></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Stock</label><input type='text' class='form-control' placeholder='Enter stock' name='stock'></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Price</label><input type='text' class='form-control' placeholder='Enter price' name='price'>  </div></div><div class='row pt-3'> <div class='col'> <label for='exampleInputEmail1' class='form-label'>Product Gallery <sup class='text-danger'> (To add multiple photo press control button and select image)</sup></label> <input type='file' multiple class='form-control' id='files' name='files' /></div></div>");
+                $("#textboxDiv").append("<div class='row pt-3'><div class='col'><label for='exampleInputEmail1' class='form-label'>Option Group</label><select class='form-control' id='productGroupId'  name='productGroupId[]'><option selected disabled>Select Option Group</option>@php $groupedOptions = collect($optionGroup)->groupBy('productGroup'); @endphp @foreach ($groupedOptions as $productGroupId => $options) <option value='{{ $productGroupId }}'> @foreach ($options as $option) {{ $option->optionGroup }}: {{ $option->option }}, @endforeach </option> @endforeach </select></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Stock</label><input type='text' class='form-control' placeholder='Enter stock' id='stock' name='stock[]'></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Price</label><input type='text' class='form-control' placeholder='Enter price' name='price[]' id='price'> </div></div><div class='row pt-3'> <div class='col'> <label for='exampleInputEmail1' class='form-label'>Product Gallery <sup class='text-danger'> (To add multiple photo press control button and select image)</sup></label> <input type='file' multiple class='form-control' id='productGallery' name='productGallery[]' /></div></div>");
+
+                // $("#textboxDiv").append("<div class='row pt-3'><div class='col'><label for='exampleInputEmail1' class='form-label'>Option Group</label><select class='form-control'  name='optionGroupId'><option selected disble>Select Option Group</option><option>Size</option><option>Color</option></select></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Option </label><input type='text' class='form-control' placeholder='Enter option' name='option'></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Stock</label><input type='text' class='form-control' placeholder='Enter stock' name='stock'></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Price</label><input type='text' class='form-control' placeholder='Enter price' name='price'>  </div></div><div class='row pt-3'> <div class='col'> <label for='exampleInputEmail1' class='form-label'>Product Gallery <sup class='text-danger'> (To add multiple photo press control button and select image)</sup></label> <input type='file' multiple class='form-control' id='files' name='files' /></div></div>");
             });
             $("#Remove").on("click", function() {
                 $("#textboxDiv").children().last().remove();
@@ -169,23 +171,45 @@
                     processData: false,
                     
                     success: function(response) {
-                        if (response.status == 200) {
-                            Swal.fire(
-                                'Added!',
-                                'Product Added Successfully!',
-                                'success'
-                            )
-                        }
-                        window.location.href = "{{route('product.index') }}";
+                        // if (response.status == 200) {
+                        //     Swal.fire(
+                        //         'Added!',
+                        //         'Product Added Successfully!',
+                        //         'success'
+                        //     )
+                        // }
+                        // window.location.href = "{{route('product.index') }}";
+                        alert(response)
                     },
                 });
             });
         });
     </script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/38.1.1/classic/ckeditor.js"></script>
     <script>
+        ClassicEditor
+            .create(document.querySelector('#detail'))
+            .then(editor => {
+                console.log(about);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#tag'))
+            .then(editor => {
+                console.log(about);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+    {{-- <script>
         window.onload = function() {
             CKEDITOR.replace('detail');
             CKEDITOR.replace('tag');
         };
-    </script>
+    </script> --}}
     @stop
