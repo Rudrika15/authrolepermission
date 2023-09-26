@@ -9,7 +9,7 @@
         </div>
     </div>
     <div class="card-body">
-        <form id="productForm" method="POST" enctype="multipart/form-data">
+        <form id="productForm" action="{{route('product.store')}}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-3">
                 <label for="exampleInputEmail1" class="form-label">Title</label>
@@ -78,7 +78,7 @@
                 <div class='col'>
                     <label for='exampleInputEmail1' class='form-label'>Option Group</label>
                    
-                    <select class='form-control' id='productGroupId' name='productGroupId[]'>
+                    <select class='form-control' id='productGroupId' name='productGroupId[]' value="">
                         <option selected disabled>Select Option Group</option>
                         @php
                             $groupedOptions = collect($optionGroup)->groupBy('productGroup');
@@ -159,30 +159,30 @@
                 }
                 reader.readAsDataURL(this.files[0]);
             });
-            $("#productForm").submit(function(e) {
-                e.preventDefault();
-                var formData = new FormData(this);
-                $.ajax({
-                    type: 'POST',
-                    url: "{{url('product/store')}}",
-                    data: formData,
-                    cache: false,
-                    contentType: false,
-                    processData: false,
+            // $("#productForm").submit(function(e) {
+            //     e.preventDefault();
+            //     var formData = new FormData(this);
+            //     $.ajax({
+            //         type: 'POST',
+            //         url: "{{url('product/store')}}",
+            //         data: formData,
+            //         cache: false,
+            //         contentType: false,
+            //         processData: false,
                     
-                    success: function(response) {
-                        // if (response.status == 200) {
-                        //     Swal.fire(
-                        //         'Added!',
-                        //         'Product Added Successfully!',
-                        //         'success'
-                        //     )
-                        // }
-                        // window.location.href = "{{route('product.index') }}";
-                        alert(response)
-                    },
-                });
-            });
+            //         success: function(response) {
+            //             // if (response.status == 200) {
+            //             //     Swal.fire(
+            //             //         'Added!',
+            //             //         'Product Added Successfully!',
+            //             //         'success'
+            //             //     )
+            //             // }
+            //             // window.location.href = "{{route('product.index') }}";
+            //             alert(response)
+            //         },
+            //     });
+            // });
         });
     </script>
     <script src="https://cdn.ckeditor.com/ckeditor5/38.1.1/classic/ckeditor.js"></script>

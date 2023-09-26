@@ -86,52 +86,63 @@ class ProductController extends Controller
         else
             $product->isRecommend = 0;
         $product->save();
-
-        $stock[]=$request->stock;
-        $price[]=$request->price;
-        $productGroupId[]=$request->productGroupId;
-        $productId=$product->id;
-        for($count = 0; $count < count($productGroupId); $count++){
-            $data = array(
-                'productGroupId' => $productGroupId[$count],
-                'productId'=>$productId[$count],
-                'stock'  => $stock[$count],
-                'price'  => $price[$count],
-               );
-            $insert_data[] = $data;
-        }
-        ProductStockPrice::create( $insert_data);
-            // $ProductStockPrice=new ProductStockPrice();
-            // $ProductStockPrice->productGroupId=$request->productGroupId;
-            // $ProductStockPrice->productId=$product->id;
-            // $ProductStockPrice->stock=$request->stock;
-            // $ProductStockPrice->price=$request->price;
-            // $ProductStockPrice->save();
+       
+        $productGalleries=[];
         
-    
         if ($request->hasFile('productGallery')) {
             foreach ($request->file('productGallery') as $galleryImage) {
                 $productGallery=new ProductGallery();
-                $productGallery->productGroupId=$request->productGroupId;
                 $galleryFileName = time() . '.' . $galleryImage->extension();
                 $galleryImage->move(public_path('gallery'), $galleryFileName);
                 $productGallery->productGallery = $galleryFileName;
+                foreach ($request->productGroupId as $productGroupIdData){
+                    $productGallery->productGroupId = $productGroupIdData;
+                }
+                // $data[]=$request->productGroupId;
+                // foreach ($data as $GroupId) {
+                //    return $productGallery->productGroupId = $GroupId;
+                // }
+               
                 $productGallery->save();
+                $productGalleries[]=$productGallery;
             }
         }
-        
-        if ($product) {
-            return response()->json([
-                'status' => 200,
-            ]);
-        } else {
-            // Handle the case where saving the product failed
-            return response()->json([
-                'status' => 500, // You can use an appropriate status code for failure
-                'message' => 'Failed to save the product.',
-            ]);
-
+       
+        $productGroupIds = $request->productGroupId;
+        $stocks = $request->stock;
+        $prices = $request->price;
+        $productId=$product->id;
+        $productStockPrices = [];
+        foreach ($productGroupIds as $key => $groupId) {
+            $productStockPrice=new ProductStockPrice();
+            $productStockPrice->productGroupId = $groupId;
+            $productStockPrice->productId=$productId;
+             if (isset($stocks[$key]) && isset($prices[$key])) {
+                $productStockPrice->stock = $stocks[$key];
+                $productStockPrice->price = $prices[$key];
+            }        
+            $productStockPrice->save();
+            $productStockPrices[] = $productStockPrice;
         }
+
+
+        return  $productGalleries;
+        // return $product.''.$productGallery.''.$productStockPrices;
+        
+        
+        // if ($product) {
+        //     // return response()->json([
+        //     //     'status' => 200,
+        //     //     // 'message'=>$productPrice
+        //     // ]);
+        // } else {
+        //     // Handle the case where saving the product failed
+        //     return response()->json([
+        //         'status' => 500, // You can use an appropriate status code for failure
+        //         'message' => 'Failed to save the product.',
+        //     ]);
+
+        // }
     }
 
     /**
