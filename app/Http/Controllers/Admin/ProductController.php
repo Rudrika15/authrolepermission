@@ -12,6 +12,8 @@ use App\Models\ProductStockPrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
+use Laravel\Ui\Presets\React;
+use Yajra\DataTables\DataTables;
 
 class ProductController extends Controller
 {
@@ -29,10 +31,9 @@ class ProductController extends Controller
             return \Yajra\DataTables\DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-
                     $btn = '<a href="' . URL::route('product.edit', $row->id) . '"data-toggle="tooltip" data-original-title="Edit" class="btn btn-primary btn-sm editProduct">Edit</a>';
                     $btn = $btn . '<a href="javascript:void(0)"  data-id="' . $row->id . '" class="deleteProduct ms-2 btn btn-danger btn-sm">Delete</a>';
-
+                    $btn =  $btn .'<a href="' . URL::route('product.addVarient', $row->id) . '"data-toggle="tooltip" data-original-title="Add Varient" class="btn btn-success btn-sm addVarient mt-2">Add Varient</a>';
                     return  $btn;
                 })
                 ->rawColumns(['action'])
@@ -87,62 +88,20 @@ class ProductController extends Controller
             $product->isRecommend = 0;
         $product->save();
        
-        $productGalleries=[];
         
-        if ($request->hasFile('productGallery')) {
-            foreach ($request->file('productGallery') as $galleryImage) {
-                $productGallery=new ProductGallery();
-                $galleryFileName = time() . '.' . $galleryImage->extension();
-                $galleryImage->move(public_path('gallery'), $galleryFileName);
-                $productGallery->productGallery = $galleryFileName;
-                foreach ($request->productGroupId as $productGroupIdData){
-                    $productGallery->productGroupId = $productGroupIdData;
-                }
-                // $data[]=$request->productGroupId;
-                // foreach ($data as $GroupId) {
-                //    return $productGallery->productGroupId = $GroupId;
-                // }
-               
-                $productGallery->save();
-                $productGalleries[]=$productGallery;
-            }
+        if ($product) {
+            return response()->json([
+                'status' => 200,
+                'message'=>'Product Created Successfully!'
+            ]);
+        } else {
+            // Handle the case where saving the product failed
+            return response()->json([
+                'status' => 500, // You can use an appropriate status code for failure
+                'message' => 'Failed to save the product.',
+            ]);
+
         }
-       
-        $productGroupIds = $request->productGroupId;
-        $stocks = $request->stock;
-        $prices = $request->price;
-        $productId=$product->id;
-        $productStockPrices = [];
-        foreach ($productGroupIds as $key => $groupId) {
-            $productStockPrice=new ProductStockPrice();
-            $productStockPrice->productGroupId = $groupId;
-            $productStockPrice->productId=$productId;
-             if (isset($stocks[$key]) && isset($prices[$key])) {
-                $productStockPrice->stock = $stocks[$key];
-                $productStockPrice->price = $prices[$key];
-            }        
-            $productStockPrice->save();
-            $productStockPrices[] = $productStockPrice;
-        }
-
-
-        return  $productGalleries;
-        // return $product.''.$productGallery.''.$productStockPrices;
-        
-        
-        // if ($product) {
-        //     // return response()->json([
-        //     //     'status' => 200,
-        //     //     // 'message'=>$productPrice
-        //     // ]);
-        // } else {
-        //     // Handle the case where saving the product failed
-        //     return response()->json([
-        //         'status' => 500, // You can use an appropriate status code for failure
-        //         'message' => 'Failed to save the product.',
-        //     ]);
-
-        // }
     }
 
     /**
@@ -207,4 +166,69 @@ public function update(Request $request)
     {
         Product::find($id)->delete();
     }
+
+    public function addVarient(Request $request,$id){
+        $optionGroup=LinkVariant::all();
+        $product=Product::find($id);
+        return view('admin.product.addVarient',compact('product','optionGroup'));
+    }
+
+    public function getAllproductVarient(Request $request,$productId){
+        $productIdData = $request->productId;  
+        
+        if($request->ajax()){
+           $data=ProductStockPrice::with('product')->with('linkVariant')->where('productId','=',$productIdData)->get();
+
+            return DataTables::of($data)
+                        ->addIndexColumn()
+                        ->addColumn('product_group', function ($row) {
+                            return $row->linkVariant->productGroup;
+                        })
+                        ->addColumn('action',function($row){
+                            $btn =  '<a href="javascript:void(0)"  data-id="' . $row->id . '" class="deleteProduct ms-2 btn btn-danger btn-sm">Delete</a>';
+                        })
+                        
+                        ->rawColumns(['action'])
+                        ->make(true);
+        }
+        
+        return view('admin.product.addVarient',compact('productId'));
+    }
+    public function storeProductVarient(Request $request){
+        $productStockPrice=new ProductStockPrice();
+        $productStockPrice->productGroupId=$request->productGroupId;
+        $productStockPrice->productId=$request->productId;
+        $productStockPrice->stock=$request->stock;
+        $productStockPrice->price=$request->price;
+        $productStockPrice->save();
+
+
+        if ($request->hasFile('productGallery')) {
+            foreach ($request->file('productGallery') as $galleryImage) {
+                $productGallery=new ProductGallery();
+                $productGallery->productGroupId=$request->productGroupId;
+                $galleryFileName = time() . '.' . $galleryImage->extension();
+                $galleryImage->move(public_path('gallery'), $galleryFileName);
+                $productGallery->productGallery = $galleryFileName;
+                $productGallery->productId=$request->productId;
+                $productGallery->save();    
+            }
+            
+        }
+
+        if($productStockPrice && $productGallery){
+            return response()->json([
+                'status'=>200,
+                'success'=>true,
+                'message'=>'Product Varient Created Successfully!'
+            ]);
+        }else{
+            return response()->json([
+                'status'=>200,
+                'success'=>false,
+                'message'=>'Product Varient Not Created!'
+            ]);
+        }
+    }
+    
 }

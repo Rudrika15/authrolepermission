@@ -74,59 +74,13 @@
                 </div>
             </div>
            
-            <div class='row pt-3'>
-                <div class='col'>
-                    <label for='exampleInputEmail1' class='form-label'>Option Group</label>
-                   
-                    <select class='form-control' id='productGroupId' name='productGroupId[]' value="">
-                        <option selected disabled>Select Option Group</option>
-                        @php
-                            $groupedOptions = collect($optionGroup)->groupBy('productGroup');
-                        @endphp
-                
-                        @foreach ($groupedOptions as $productGroupId => $options)
-                            <option value="{{ $productGroupId }}">
-                                @foreach ($options as $option)
-                                    {{ $option->optionGroup }}: {{ $option->option }}, 
-                                @endforeach
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                {{-- <div class='col'> 
-                        <label for='exampleInputEmail1' class='form-label'>Option </label>
-                        <input type='text' class='form-control' placeholder='Enter option' name='option'>
-                </div> --}}
-                <div class='col'>
-                        <label for='exampleInputEmail1' class='form-label'>Stock</label>
-                        <input type='text' class='form-control' placeholder='Enter stock' id="stock" name='stock[]'>
-                </div>
-                    <div class='col'>
-                        <label for='exampleInputEmail1' class='form-label'>Price</label>
-                        <input type='text' class='form-control' placeholder='Enter price' id="price" name='price[]'>  
-                    </div>
-                </div>
-                <div class='row pt-3'> 
-                    <div class='col'> 
-                        <label for='exampleInputEmail1' class='form-label'>Product Gallery <sup class='text-danger'> (To add multiple photo press control button and select image)</sup></label> 
-                            <input type='file' multiple class='form-control' id='productGallery' name='productGallery[]' />
-                    </div>
-                </div>
-            <span id="Add" class="btn btn-success mt-3">Add</span>
-            <span id="Remove" class="btn btn-danger mt-3">Remove</span>
-            <div id="textboxDiv"></div>
-
-
-            <div class="alert alert-danger print-error-msg" style="display: none">
-                <ul></ul>
-            </div>
             <button type="submit" class="btn btn-primary my-3">Submit</button>
         </form>
 
     </div>
 </div>
 
-<<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
     </script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
@@ -141,17 +95,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-
-            
-            $("#Add").on("click", function() {
-                $("#textboxDiv").append("<div class='row pt-3'><div class='col'><label for='exampleInputEmail1' class='form-label'>Option Group</label><select class='form-control' id='productGroupId'  name='productGroupId[]'><option selected disabled>Select Option Group</option>@php $groupedOptions = collect($optionGroup)->groupBy('productGroup'); @endphp @foreach ($groupedOptions as $productGroupId => $options) <option value='{{ $productGroupId }}'> @foreach ($options as $option) {{ $option->optionGroup }}: {{ $option->option }}, @endforeach </option> @endforeach </select></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Stock</label><input type='text' class='form-control' placeholder='Enter stock' id='stock' name='stock[]'></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Price</label><input type='text' class='form-control' placeholder='Enter price' name='price[]' id='price'> </div></div><div class='row pt-3'> <div class='col'> <label for='exampleInputEmail1' class='form-label'>Product Gallery <sup class='text-danger'> (To add multiple photo press control button and select image)</sup></label> <input type='file' multiple class='form-control' id='productGallery' name='productGallery[]' /></div></div>");
-
-                // $("#textboxDiv").append("<div class='row pt-3'><div class='col'><label for='exampleInputEmail1' class='form-label'>Option Group</label><select class='form-control'  name='optionGroupId'><option selected disble>Select Option Group</option><option>Size</option><option>Color</option></select></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Option </label><input type='text' class='form-control' placeholder='Enter option' name='option'></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Stock</label><input type='text' class='form-control' placeholder='Enter stock' name='stock'></div><div class='col'><label for='exampleInputEmail1' class='form-label'>Price</label><input type='text' class='form-control' placeholder='Enter price' name='price'>  </div></div><div class='row pt-3'> <div class='col'> <label for='exampleInputEmail1' class='form-label'>Product Gallery <sup class='text-danger'> (To add multiple photo press control button and select image)</sup></label> <input type='file' multiple class='form-control' id='files' name='files' /></div></div>");
-            });
-            $("#Remove").on("click", function() {
-                $("#textboxDiv").children().last().remove();
-            });
-
             $('#photo').change(function() {
                 let reader = new FileReader();
                 reader.onload = (e) => {
@@ -159,30 +102,30 @@
                 }
                 reader.readAsDataURL(this.files[0]);
             });
-            // $("#productForm").submit(function(e) {
-            //     e.preventDefault();
-            //     var formData = new FormData(this);
-            //     $.ajax({
-            //         type: 'POST',
-            //         url: "{{url('product/store')}}",
-            //         data: formData,
-            //         cache: false,
-            //         contentType: false,
-            //         processData: false,
+            $("#productForm").submit(function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    type: 'POST',
+                    url: "{{url('product/store')}}",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
                     
-            //         success: function(response) {
-            //             // if (response.status == 200) {
-            //             //     Swal.fire(
-            //             //         'Added!',
-            //             //         'Product Added Successfully!',
-            //             //         'success'
-            //             //     )
-            //             // }
-            //             // window.location.href = "{{route('product.index') }}";
-            //             alert(response)
-            //         },
-            //     });
-            // });
+                    success: function(response) {
+                        if (response.status == 200) {
+                            Swal.fire(
+                                'Added!',
+                                'Product Added Successfully!',
+                                'success'
+                            )
+                        }
+                        window.location.href = "{{route('product.index') }}";
+                        
+                    },
+                });
+            });
         });
     </script>
     <script src="https://cdn.ckeditor.com/ckeditor5/38.1.1/classic/ckeditor.js"></script>

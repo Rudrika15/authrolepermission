@@ -83,6 +83,15 @@ Route::post('product/store', [ProductController::class, 'store'])->name('product
 Route::get('/product/edit/{id?}', [ProductController::class, 'edit'])->name('product.edit');
 Route::post('/product/update', [ProductController::class, 'update'])->name('product.update');
 Route::get('/product/delete/{id?}', [ProductController::class, 'delete'])->name('product.delete');
+Route::get('/product/addVarient/{id?}', [ProductController::class, 'addVarient'])->name('product.addVarient');
+Route::post('product/storeProductVarient', [ProductController::class, 'storeProductVarient'])->name('product.storeProductVarient');
+Route::get('product/getAllproductVarient/{productId?}', [ProductController::class, 'getAllproductVarient'])->name('product.getAllproductVarient');
+
+
+
+
+
+
 
 // slider Routes
 Route::get('slider/create', [SliderController::class, 'create'])->name('slider.create');

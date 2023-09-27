@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->longtext('productGroupId');
             $table->string('productGallery');
+            $table->integer('productId');
+            $table->string('status')->default('Active');
             $table->timestamps();
         });
     }

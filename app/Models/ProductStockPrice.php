@@ -12,4 +12,13 @@ class ProductStockPrice extends Model
         
     ];
 
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'productId', 'id');
+    }
+    public function linkVariant()
+    {
+        return $this->belongsTo(LinkVariant::class, 'productGroupId','id');
+    }
+   
 }
