@@ -13,7 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Laravel\Ui\Presets\React;
-use Yajra\DataTables\DataTables;
+use DataTables;
+use Symfony\Component\VarDumper\Caster\LinkStub;
 
 class ProductController extends Controller
 {
@@ -168,32 +169,36 @@ public function update(Request $request)
     }
 
     public function addVarient(Request $request,$id){
-        $optionGroup=LinkVariant::all();
-        $product=Product::find($id);
-        return view('admin.product.addVarient',compact('product','optionGroup'));
+        $optionGroup=LinkVariant::get();
+        $products=Product::find($id);
+        $productData=Product::with('productStockPrice.linkVariant')->with('productGallery.linkVariant')->where('id','=',$id)->get();
+        // $productData=Product::with('productGallery.linkVariant')->where('id','=',$id)->get();
+    
+        //return $productStockPrice=ProductStockPrice::with('linkVariant')->get();
+        return view('admin.product.addVarient',compact('productData','products','optionGroup'));
     }
+    // public function getAllproductVarient(Request $request,$productId){
+       // return  $linkVarient=LinkVariant::where('productGroup','=',$productData->productStockPrice->productGroupId)->with('productStockPrice')->get();
 
-    public function getAllproductVarient(Request $request,$productId){
-        $productIdData = $request->productId;  
+    //     $productIdData = $request->productId;  
         
-        if($request->ajax()){
-           $data=ProductStockPrice::with('product')->with('linkVariant')->where('productId','=',$productIdData)->get();
+    //     if($request->ajax()){
+    //        $data=ProductStockPrice::with('product')->with('linkVariant')->where('productId','=',$productIdData)->get();
 
-            return DataTables::of($data)
-                        ->addIndexColumn()
-                        ->addColumn('product_group', function ($row) {
-                            return $row->linkVariant->productGroup;
-                        })
-                        ->addColumn('action',function($row){
-                            $btn =  '<a href="javascript:void(0)"  data-id="' . $row->id . '" class="deleteProduct ms-2 btn btn-danger btn-sm">Delete</a>';
-                        })
+    //         return DataTables::of($data)
+    //                     ->addIndexColumn()
+                       
+    //                     ->addColumn('action',function($row){
+    //                         $btn =  '<a href="javascript:void(0)"  data-id="' . $row->id . '" class="deleteProduct ms-2 btn btn-danger btn-sm">Delete</a>';
+    //                     })
                         
-                        ->rawColumns(['action'])
-                        ->make(true);
-        }
+    //                     ->rawColumns(['action'])
+    //                     ->make(true);
+    //     }
         
-        return view('admin.product.addVarient',compact('productId'));
-    }
+    //     return view('admin.product.addVarient',compact('productId'));
+    // }
+
     public function storeProductVarient(Request $request){
         $productStockPrice=new ProductStockPrice();
         $productStockPrice->productGroupId=$request->productGroupId;
@@ -201,7 +206,6 @@ public function update(Request $request)
         $productStockPrice->stock=$request->stock;
         $productStockPrice->price=$request->price;
         $productStockPrice->save();
-
 
         if ($request->hasFile('productGallery')) {
             foreach ($request->file('productGallery') as $galleryImage) {
@@ -212,10 +216,9 @@ public function update(Request $request)
                 $productGallery->productGallery = $galleryFileName;
                 $productGallery->productId=$request->productId;
                 $productGallery->save();    
-            }
-            
+            }    
         }
-
+        
         if($productStockPrice && $productGallery){
             return response()->json([
                 'status'=>200,

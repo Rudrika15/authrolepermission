@@ -11,4 +11,8 @@ class ProductGallery extends Model
 
     protected $fillable = ['productGroupId', 'productGallery'];
 
+    public function linkVariant()
+    {
+        return $this->hasMany(LinkVariant::class, 'productGroup','productGroupId');
+    }
 }

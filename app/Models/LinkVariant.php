@@ -13,4 +13,10 @@ class LinkVariant extends Model
     {
         return $this->belongsTo(ProductStockPrice::class,'productGroupId','id');
     }
+    public function productStockPrice(){
+        return $this->hasMany(ProductStockPrice::class, 'productGroupId','productGroup');
+    }
+    public function linkVariant(){
+        return $this->belongsTo(ProductGallery::class,'productGroupId','id');
+    }
 }

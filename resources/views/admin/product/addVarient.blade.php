@@ -13,7 +13,7 @@
     <div class="card-body">
         <form id="productVarientForm"  enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="productId" id="productId" value="{{$product->id}}">
+            <input type="hidden" name="productId" id="productId" value="{{$products->id}}">
             <div class='row pt-3'>
                 <div class='col'>
                     <label for='exampleInputEmail1' class='form-label'>Option Group</label>
@@ -69,17 +69,37 @@
         <table class="table  table-bordered data-table">
             <thead>
                 <tr>
-                    <th>Sr No</th>
-                    <th>Product</th>
-                    <th>Option Group</th>
+                    <th>Product Group</th>
                     <th>Stock</th>
-                    {{-- <th>SQT</th> --}}
                     <th>Price</th>
-                    
-                    <th>Action</th>
+                    <th>Product Gallery</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                @foreach ($productData as $product)
+                
+                            @foreach ($product->productStockPrice as $productStockPrice)  
+                            <tr>
+                                <td>
+                                    @foreach ($productStockPrice->linkVariant as $linkVariant)
+                                         <p>{{$linkVariant->optionGroup}}-{{$linkVariant->option}}</p>
+                                    @endforeach
+                                </td>  
+                                <td>{{$productStockPrice->stock}}</td>
+                                <td>{{$productStockPrice->price}}</td>
+                                <td>
+                                    @foreach ($product->productGallery as $productGallery)
+                                    {{-- {{$productGallery}} --}}
+                                        @if ($productGallery->productGroupId == $linkVariant->productGroup)
+                                            <img src="{{url('/gallery')}}/{{$productGallery->productGallery}}" alt="" height="100" width="100">
+                                        @endif  
+                                    @endforeach
+                                </td>
+                            </tr> 
+                            @endforeach
+                </tr>
+                @endforeach       
+            </tbody>
         </table>
     </div>
 </div>
@@ -146,43 +166,40 @@
         }); 
         
         
-        var productId = $('#productId').val();
-                var table = $('.data-table').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "{{ url('product/getAllproductVarient')}}/"+productId, 
-                    columns: [{
-                            data: 'DT_RowIndex',
-                            name: 'DT_RowIndex'
-                        },
-                        {
-                            data: 'product.title',
-                            name: 'product.title'
-                        },
-                        {
-                            data: 'productGroup',
-                            name: 'linkVariant.productGroup',   
-                        },
-                        
-                        {
-                            data: 'stock',
-                            name: 'stock'
-                        },
-                        {
-                            data: 'price',
-                            name: 'price'
-                        },
-                        
-                        
-                        {
-                            data: 'action',
-                            name: 'action',
-                            orderable: false,
-                            searchable: false,
+        // var productId = $('#productId').val();
+        //         var table = $('.data-table').DataTable({
+        //             processing: true,
+        //             serverSide: true,
+        //             ajax: "{{ url('product/getAllproductVarient')}}/"+productId, 
+        //             columns: [{
+        //                     data: 'DT_RowIndex',
+        //                     name: 'DT_RowIndex'
+        //                 },
+        //                 {
+        //                     data: 'product.title',
+        //                     name: 'product.title'
+        //                 },
+        //                 {
+        //                     data: 'productGroupId',
+        //                     name: 'productGroupId',   
+        //                 }, 
+        //                 {
+        //                     data: 'stock',
+        //                     name: 'stock'
+        //                 },
+        //                 {
+        //                     data: 'price',
+        //                     name: 'price'
+        //                 },
+        //                 {
+        //                     data: 'action',
+        //                     name: 'action',
+        //                     orderable: false,
+        //                     searchable: false,
 
-                        },
-                    ]
-                });
+        //                 },
+        //             ]
+        //         });
 
 
     });
