@@ -85,6 +85,10 @@ Route::post('/product/update', [ProductController::class, 'update'])->name('prod
 Route::get('/product/delete/{id?}', [ProductController::class, 'delete'])->name('product.delete');
 Route::get('/product/addVarient/{id?}', [ProductController::class, 'addVarient'])->name('product.addVarient');
 Route::post('product/storeProductVarient', [ProductController::class, 'storeProductVarient'])->name('product.storeProductVarient');
+Route::get('product/getStockAndPrice/{productGroupId}', [ProductController::class,'getStockAndPrice'])->name('getStockAndPrice');
+
+
+
 Route::get('product/getAllproductVarient/{productId?}', [ProductController::class, 'getAllproductVarient'])->name('product.getAllproductVarient');
 
 

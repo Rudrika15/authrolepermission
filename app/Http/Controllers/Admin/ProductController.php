@@ -177,29 +177,9 @@ public function update(Request $request)
         //return $productStockPrice=ProductStockPrice::with('linkVariant')->get();
         return view('admin.product.addVarient',compact('productData','products','optionGroup'));
     }
-    // public function getAllproductVarient(Request $request,$productId){
-       // return  $linkVarient=LinkVariant::where('productGroup','=',$productData->productStockPrice->productGroupId)->with('productStockPrice')->get();
-
-    //     $productIdData = $request->productId;  
-        
-    //     if($request->ajax()){
-    //        $data=ProductStockPrice::with('product')->with('linkVariant')->where('productId','=',$productIdData)->get();
-
-    //         return DataTables::of($data)
-    //                     ->addIndexColumn()
-                       
-    //                     ->addColumn('action',function($row){
-    //                         $btn =  '<a href="javascript:void(0)"  data-id="' . $row->id . '" class="deleteProduct ms-2 btn btn-danger btn-sm">Delete</a>';
-    //                     })
-                        
-    //                     ->rawColumns(['action'])
-    //                     ->make(true);
-    //     }
-        
-    //     return view('admin.product.addVarient',compact('productId'));
-    // }
-
+    
     public function storeProductVarient(Request $request){
+        
         $productStockPrice=new ProductStockPrice();
         $productStockPrice->productGroupId=$request->productGroupId;
         $productStockPrice->productId=$request->productId;
@@ -233,5 +213,52 @@ public function update(Request $request)
             ]);
         }
     }
+
+    public function getStockAndPrice($productGroupId)
+    {
+        // Perform a database query to retrieve the stock and price for the given productGroupId
+        $productStockPrice = ProductStockPrice::where('productGroupId', $productGroupId)->first();
+
+        if ($productStockPrice) {
+
+            // If the record exists, return the stock and price
+            return response()->json([
+                'success' => true,
+                'stock' => $productStockPrice->stock,
+                'price' => $productStockPrice->price,
+            ]);
+        } else {
+            // If the record doesn't exist, return a response indicating failure
+            return response()->json([
+                'success' => false,
+                'stock' => null,
+                'price' => null,
+            ]);
+        }
+    }
+
+    
+    // public function getAllproductVarient(Request $request,$productId){
+       // return  $linkVarient=LinkVariant::where('productGroup','=',$productData->productStockPrice->productGroupId)->with('productStockPrice')->get();
+
+    //     $productIdData = $request->productId;  
+        
+    //     if($request->ajax()){
+    //        $data=ProductStockPrice::with('product')->with('linkVariant')->where('productId','=',$productIdData)->get();
+
+    //         return DataTables::of($data)
+    //                     ->addIndexColumn()
+                       
+    //                     ->addColumn('action',function($row){
+    //                         $btn =  '<a href="javascript:void(0)"  data-id="' . $row->id . '" class="deleteProduct ms-2 btn btn-danger btn-sm">Delete</a>';
+    //                     })
+                        
+    //                     ->rawColumns(['action'])
+    //                     ->make(true);
+    //     }
+        
+    //     return view('admin.product.addVarient',compact('productId'));
+    // }
+
     
 }

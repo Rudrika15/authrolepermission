@@ -77,7 +77,6 @@
             </thead>
             <tbody>
                 @foreach ($productData as $product)
-                
                             @foreach ($product->productStockPrice as $productStockPrice)  
                             <tr>
                                 <td>
@@ -165,43 +164,32 @@
             });
         }); 
         
-        
-        // var productId = $('#productId').val();
-        //         var table = $('.data-table').DataTable({
-        //             processing: true,
-        //             serverSide: true,
-        //             ajax: "{{ url('product/getAllproductVarient')}}/"+productId, 
-        //             columns: [{
-        //                     data: 'DT_RowIndex',
-        //                     name: 'DT_RowIndex'
-        //                 },
-        //                 {
-        //                     data: 'product.title',
-        //                     name: 'product.title'
-        //                 },
-        //                 {
-        //                     data: 'productGroupId',
-        //                     name: 'productGroupId',   
-        //                 }, 
-        //                 {
-        //                     data: 'stock',
-        //                     name: 'stock'
-        //                 },
-        //                 {
-        //                     data: 'price',
-        //                     name: 'price'
-        //                 },
-        //                 {
-        //                     data: 'action',
-        //                     name: 'action',
-        //                     orderable: false,
-        //                     searchable: false,
+        $('#productGroupId').change(function() {
+        var productGroupId = $(this).val();
 
-        //                 },
-        //             ]
-        //         });
-
-
+        // Check if the productGroupId is not empty
+        if (productGroupId !== '') {
+            // Make an AJAX request to get the stock and price for the selected productGroupId
+            $.ajax({
+                type: 'GET',
+                url: "{{ url('product/getStockAndPrice')}}/" + productGroupId,
+                success: function(response) {
+                    if (response.success) {
+                        // Update the stock and price input fields with the old values
+                        $('#stock').val(response.stock);
+                        $('#price').val(response.price);
+                    } else {
+                        // Handle the case where the productGroupId doesn't exist
+                        $('#stock').val(''); // Clear the stock input
+                        $('#price').val(''); // Clear the price input
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Handle any error here
+                }
+            });
+        }
+    });
     });
 </script>
 @stop
