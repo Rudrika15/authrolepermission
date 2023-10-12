@@ -172,14 +172,15 @@ public function update(Request $request)
         $optionGroup=LinkVariant::get();
         $products=Product::find($id);
         $productData=Product::with('productStockPrice.linkVariant')->with('productGallery.linkVariant')->where('id','=',$id)->get();
-        // $productData=Product::with('productGallery.linkVariant')->where('id','=',$id)->get();
-    
-        //return $productStockPrice=ProductStockPrice::with('linkVariant')->get();
         return view('admin.product.addVarient',compact('productData','products','optionGroup'));
     }
-    
     public function storeProductVarient(Request $request){
-        
+        $this->validate($request,[
+            'productId'=>'required|unique:product_stock_prices,productId,NULL,id,productGroupId,'.$request->productGroupId,
+            'productGroupId'=>'required',
+            'stock'=>'required',
+            'price'=>'required',
+        ]);
         $productStockPrice=new ProductStockPrice();
         $productStockPrice->productGroupId=$request->productGroupId;
         $productStockPrice->productId=$request->productId;
@@ -199,7 +200,7 @@ public function update(Request $request)
             }    
         }
         
-        if($productStockPrice && $productGallery){
+        if($productStockPrice){
             return response()->json([
                 'status'=>200,
                 'success'=>true,
@@ -216,16 +217,14 @@ public function update(Request $request)
 
     public function getStockAndPrice($productGroupId)
     {
-        // Perform a database query to retrieve the stock and price for the given productGroupId
         $productStockPrice = ProductStockPrice::where('productGroupId', $productGroupId)->first();
-
         if ($productStockPrice) {
-
-            // If the record exists, return the stock and price
             return response()->json([
                 'success' => true,
                 'stock' => $productStockPrice->stock,
                 'price' => $productStockPrice->price,
+                'id'=>$productStockPrice->id,
+                
             ]);
         } else {
             // If the record doesn't exist, return a response indicating failure
@@ -236,8 +235,26 @@ public function update(Request $request)
             ]);
         }
     }
-
-    
+    public function deleteProductStockPrice($id){
+        $productStockPrice = ProductStockPrice::find($id);
+        $productStockPrice->delete();
+        return response()->json([
+            'success'=>'Product Stock Price Deleted Successfully!'
+        ]);
+    }
+    public function deleteProductGallery($id){
+        $productGallery=ProductGallery::find($id);
+        $productGallery->delete();
+        return redirect()->back();
+        // return response()->json([
+        //     'success'=>'Product Gallery Deleted Successfully!'
+        // ]);
+    }
+    public function checkProductExists($productGroupId)
+    {
+        $productExists = ProductStockPrice::where('productGroupId', $productGroupId)->exists();
+        return response()->json(['exists' => $productExists]);
+    }
     // public function getAllproductVarient(Request $request,$productId){
        // return  $linkVarient=LinkVariant::where('productGroup','=',$productData->productStockPrice->productGroupId)->with('productStockPrice')->get();
 

@@ -18,7 +18,7 @@
                 <div class='col'>
                     <label for='exampleInputEmail1' class='form-label'>Option Group</label>
                    
-                    <select class='form-control' id='productGroupId' name='productGroupId' value="">
+                    <select class='form-control @error('productGroupId') is-invalid @enderror' id='productGroupId' name='productGroupId' value="">
                         <option selected disabled>Select Option Group</option>
                         @php
                             $groupedOptions = collect($optionGroup)->groupBy('productGroup');
@@ -31,16 +31,26 @@
                                 @endforeach
                             </option>
                         @endforeach
+                        @error('productGroupId')
+                            <span class="text-danger">{{$message}}</span>
+                        @enderror
                     </select>
+                    
                 </div>
                
                 <div class='col'>
                         <label for='exampleInputEmail1' class='form-label'>Stock</label>
-                        <input type='text' class='form-control' placeholder='Enter stock' id="stock" name='stock'>
+                        <input type='text' class='form-control @error('stock') is-invalid @enderror' placeholder='Enter stock' id="stock" name='stock'>
+                        @error('stock')
+                            <span class="text-danger">{{$message}}</span>
+                        @enderror
                 </div>
                     <div class='col'>
                         <label for='exampleInputEmail1' class='form-label'>Price</label>
-                        <input type='text' class='form-control' placeholder='Enter price' id="price" name='price'>  
+                        <input type='text' class='form-control @error('price') is-invalid @enderror' placeholder='Enter price' id="price" name='price'>  
+                        @error('price')
+                            <span class="text-danger">{{$message}}</span>
+                        @enderror
                     </div>
                 </div>
                 <div class='row pt-3'> 
@@ -49,8 +59,9 @@
                             <input type='file' multiple class='form-control' id='productGallery' name='productGallery[]' />
                     </div>
                 </div>
-            
-            
+                <input type="hidden" id="id" name="id" value="">
+
+                <input type="hidden" id="optionGroupData" value="">
             <button type="submit" class="btn btn-primary my-3">Submit</button>
         </form>
 
@@ -87,12 +98,13 @@
                                 <td>{{$productStockPrice->stock}}</td>
                                 <td>{{$productStockPrice->price}}</td>
                                 <td>
-                                    @foreach ($product->productGallery as $productGallery)
-                                    {{-- {{$productGallery}} --}}
-                                        @if ($productGallery->productGroupId == $linkVariant->productGroup)
-                                            <img src="{{url('/gallery')}}/{{$productGallery->productGallery}}" alt="" height="100" width="100">
-                                        @endif  
-                                    @endforeach
+                                    
+                                            @foreach ($product->productGallery as $productGallery)
+                                                @if ($productGallery->productGroupId == $linkVariant->productGroup)
+                                                <a href="{{route('deleteProductGallery')}}/{{$productGallery->id}}"><img src="{{url('/gallery')}}/{{$productGallery->productGallery}}" alt="" height="100" width="100"></a>      
+                                                @endif  
+                                            @endforeach
+                                    
                                 </td>
                             </tr> 
                             @endforeach
@@ -123,37 +135,111 @@
 
 
         $('#productVarientForm').submit(function(e) {
-            e.preventDefault();
-            var formData = new FormData(this);
-
+        e.preventDefault();
+        var formData = new FormData(this);
+        var existingProductGroupId = $('#optionGroupData').val();
+        var productGroupData = existingProductGroupId;
+        
+        var id=$('#id').val();
+        if (productGroupData && id) {
+            // Check if a record with the same productGroupId exists
             $.ajax({
-                type: 'POST',
-                url: "{{ url('product/storeProductVarient')}}",
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false,
+                type: 'GET',
+                url: "{{ url('product/checkProductExists')}}/" + productGroupData,
                 success: function(response) {
-                    if (response.success) {
-                        // Success message using SweetAlert
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: response.message,
-                        },200).then(function() {
-                                // Reload the page after a successful record insertion
-                                location.reload();
-                            });
+                    if (response.exists) {
+                        // If a record exists, ask for confirmation to delete it
+                        
+                                // AJAX request to delete the existing record
+                                $.ajax({
+                                    url: "{{ url('product/deleteProductStockPrice') }}" + '/' + id,
+                                    method: 'GET',
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        id: id
+                                    },
+                                    success: function(response) {
+                                            // Success message using SweetAlert
+                                            $.ajax({
+                                            type: 'POST',
+                                            url: "{{ url('product/storeProductVarient')}}",
+                                            data: formData,
+                                            cache: false,
+                                            contentType: false,
+                                            processData: false,
+                                            success: function(response) {
+                                                if (response.success) {
+                                                    // Success message using SweetAlert
+                                                    Swal.fire({
+                                                        icon: 'success',
+                                                        title: 'Success',
+                                                        text: response.message,
+                                                    }, 200).then(function() {
+                                                        // Reload the page after a successful record insertion
+                                                        location.reload();
+                                                    });
+                                                } else {
+                                                    // Error message using SweetAlert
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Error',
+                                                        text: 'An error occurred!',
+                                                    });
+                                                }
+                                            },
+                                            error: function(xhr, status, error) {
+                                                // Error message using SweetAlert
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error',
+                                                    text: 'An error occurred!',
+                                                });
+                                            }
+                                        });
+                                    },
+                                    error: function(xhr, status, error) {
+                                        // Error message using SweetAlert
+                                        console.log("it Not Works");
+                                    }
+                                });
+                            
+                       
                     } else {
-                        // Error message using SweetAlert
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'An error occurred!',
-                        });
+                        // If no existing record, just submit the new one
+                        submitNewRecord(formData);
                     }
                 },
                 error: function(xhr, status, error) {
+                    // Handle any error here
+                }
+            });
+        } else {
+            // If id is not present, submit the new record
+            submitNewRecord(formData);
+        }
+    });
+
+    // Function to submit the new record
+    function submitNewRecord(formData) {
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('product/storeProductVarient')}}",
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                if (response.success) {
+                    // Success message using SweetAlert
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.message,
+                    }, 200).then(function() {
+                        // Reload the page after a successful record insertion
+                        location.reload();
+                    });
+                } else {
                     // Error message using SweetAlert
                     Swal.fire({
                         icon: 'error',
@@ -161,15 +247,21 @@
                         text: 'An error occurred!',
                     });
                 }
-            });
-        }); 
-        
+            },
+            error: function(xhr, status, error) {
+                // Error message using SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred!',
+                });
+            }
+        });
+    }
         $('#productGroupId').change(function() {
         var productGroupId = $(this).val();
-
-        // Check if the productGroupId is not empty
+        $('#optionGroupData').val(productGroupId);
         if (productGroupId !== '') {
-            // Make an AJAX request to get the stock and price for the selected productGroupId
             $.ajax({
                 type: 'GET',
                 url: "{{ url('product/getStockAndPrice')}}/" + productGroupId,
@@ -178,10 +270,14 @@
                         // Update the stock and price input fields with the old values
                         $('#stock').val(response.stock);
                         $('#price').val(response.price);
+                        $('#id').val(response.id);
+                        
+                        
                     } else {
                         // Handle the case where the productGroupId doesn't exist
                         $('#stock').val(''); // Clear the stock input
                         $('#price').val(''); // Clear the price input
+                        $('#id').val('');
                     }
                 },
                 error: function(xhr, status, error) {
@@ -190,6 +286,7 @@
             });
         }
     });
+    
     });
 </script>
 @stop

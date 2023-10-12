@@ -86,6 +86,10 @@ Route::get('/product/delete/{id?}', [ProductController::class, 'delete'])->name(
 Route::get('/product/addVarient/{id?}', [ProductController::class, 'addVarient'])->name('product.addVarient');
 Route::post('product/storeProductVarient', [ProductController::class, 'storeProductVarient'])->name('product.storeProductVarient');
 Route::get('product/getStockAndPrice/{productGroupId}', [ProductController::class,'getStockAndPrice'])->name('getStockAndPrice');
+Route::get('product/deleteProductStockPrice/{id?}', [ProductController::class, 'deleteProductStockPrice'])->name('deleteProductStockPrice');
+Route::get('product/deleteProductGallery/{id?}', [ProductController::class, 'deleteProductGallery'])->name('deleteProductGallery');
+
+Route::get('/product/checkProductExists/{productGroupId}',[ProductController::class,'checkProductExists'])->name('checkProductExists');
 
 
 
