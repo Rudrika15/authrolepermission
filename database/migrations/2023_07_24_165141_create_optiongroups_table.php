@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('optiongroups', function (Blueprint $table) {
             $table->id();
             $table->string('optionGroupName');
+            $table->integer('categoryId');
             $table->timestamps();
         });
     }

@@ -97,13 +97,17 @@
                                 </td>  
                                 <td>{{$productStockPrice->stock}}</td>
                                 <td>{{$productStockPrice->price}}</td>
-                                <td>
+                                <td style="position: relative">
                                     
-                                            @foreach ($product->productGallery as $productGallery)
-                                                @if ($productGallery->productGroupId == $linkVariant->productGroup)
-                                                <a href="{{route('deleteProductGallery')}}/{{$productGallery->id}}"><img src="{{url('/gallery')}}/{{$productGallery->productGallery}}" alt="" height="100" width="100"></a>      
-                                                @endif  
-                                            @endforeach
+                                        @foreach ($product->productGallery as $productGallery)
+                                            @if ($productGallery->productGroupId == $linkVariant->productGroup)
+                                            
+                                            <a href="{{route('deleteProductGallery')}}/{{$productGallery->id}}" class="fa fa-close" style="position: absolute;color:red;background-color:white;text-decoration:none;"></a>
+                                            <a ><img src="{{url('/gallery')}}/{{$productGallery->productGallery}}" class="fa fa-user" alt="" height="100" width="100"></a>      
+                                            
+                                            @endif  
+                                        @endforeach
+                                           
                                     
                                 </td>
                             </tr> 

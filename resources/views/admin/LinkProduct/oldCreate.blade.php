@@ -20,8 +20,31 @@ Variant Add || Shop
         </div>
         @endif
         <form id="create" action="{{route('link.store')}}" method="POST">
-            @csrf   
+            @csrf
             <div class="row">
+                <?php
+                $i = 0;
+                foreach ($optionGroups as $optionGroup) {
+                    $i++;
+                ?>
+                    <div class="mb-3 col">
+                        <label for="exampleInputEmail1" class="form-label">
+                           <input type="hidden" value="{{$optionGroup->optionGroupName}}" name='optiongroup[]' />
+                            {{$optionGroup->optionGroupName}}
+                        </label>
+
+                        <select type class="form-control" id="title" name="title[]">
+                            <option selected disabled>--Select {{$optionGroup->optionGroupName}}--</option>
+                            @foreach($options as $option)
+                            @if($optionGroup->id === $option->optionGroupId)
+                            <option value="{{$option->option}}">{{$option->option}}</option>
+                            @endif
+                            @endforeach
+
+                        </select>
+                    </div>
+                <?php  } ?>
+
                 <div class="mb-3 col">
                     <label for="exampleInputEmail1" class="form-label">Category</label>
 
@@ -33,28 +56,6 @@ Variant Add || Shop
                         
                     </select>
                 </div>
-                
-                @foreach ($optionGroups as $optionGroup)
-                        <div class="mb-3 col option-group">
-                            <label for="exampleInputEmail1" class="form-label">
-                                <input type="hidden" value="{{$optionGroup->optionGroupName}}" name='optiongroup[]' />
-                                <input type="hidden" value="{{ $optionGroup->categoryId }}" name='categoryIds[]' />
-                                {{ $optionGroup->optionGroupName }}
-                            </label>
-                           
-                                <select class="form-control" id="title" name="title[]">
-                                    <option selected disabled>--Select {{ $optionGroup->optionGroupName }}--</option>
-                                    @foreach ($options as $option)
-                                    @if ($optionGroup->id === $option->optionGroupId)
-                                    <option value="{{ $option->option }}">{{ $option->option }}</option>
-                                    @endif
-                                    @endforeach
-                                </select>
-                            
-                        </div>
-                        
-                @endforeach
-                
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
@@ -63,8 +64,7 @@ Variant Add || Shop
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-
-<script>
+{{-- <script>
     $(document).ready(function () {
         // Initially, show all option groups
         $('.option-group').show();
@@ -86,7 +86,7 @@ Variant Add || Shop
         // Trigger the change event initially to set the initial state.
         $('#categoryId').trigger('change');
     });
-</script> 
+</script> --}}
 
 
 {{-- @foreach ($optionGroups as $optionGroup)

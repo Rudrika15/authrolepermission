@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\LinkVariant;
 use App\Models\Option;
 use App\Models\Optiongroup;
@@ -30,36 +31,76 @@ class LinkVariantController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
         
+        $category=Category::all();
+        $categoryData=Category::all();
         $optionGroups =  Optiongroup::all();
         $options =  Option::all();
-        return view('Admin.LinkProduct.create', compact('optionGroups', 'options'));
+        return view('Admin.LinkProduct.create', compact('categoryData','optionGroups', 'options','category'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
+    // public function store(Request $request)
+    // {
+    //     $id =  str::uuid();
+    //     $categoryId=$request->categoryId;
+    //     for ($i = 0; $i < count($request->optiongroup); $i++) {
+    //         $opt = $request->optiongroup[$i];
+    //         $title  = $request->title[$i];
+            
+
+    //         $linkVariant = new LinkVariant();
+    //         $linkVariant->productGroup = $id;
+    //         $linkVariant->optionGroup = $opt;
+    //         $linkVariant->option = $title;
+    //         $linkVariant->categoryId=$categoryId;
+    //         $linkVariant->save();
+                    
+    //     }
+    //     return redirect()->route('link.index');
+          
+    // }
     public function store(Request $request)
-    {
-        $id =  str::uuid();
+{
+    $id = Str::uuid();
+    $categoryId = $request->categoryId;
 
-        for ($i = 0; $i < count($request->optiongroup); $i++) {
-            $opt = $request->optiongroup[$i];
-            $title  = $request->title[$i];
+    // Check if the inputs are present in the request
+    if ($request->filled('optiongroup')  && $request->title) {
+        $optionGroups = $request->input('optiongroup');
+        $titles = $request->input('title');
+        return response()->json([
+            'data'=>[$optionGroups, $titles]
+        ]);
+        // Ensure that the option groups and titles have the same count
+        if (count($optionGroups) !== count($titles)) {
+            return response()->json([
+                'messgae'=>"First Error"
+            ]);
+        }
 
+        foreach ($optionGroups as $index => $opt) {
+            // Create a new LinkVariant for each selected option
             $linkVariant = new LinkVariant();
             $linkVariant->productGroup = $id;
             $linkVariant->optionGroup = $opt;
-            $linkVariant->option = $title;
+            $linkVariant->option = $titles[$index]; // Assign the selected option
+            $linkVariant->categoryId = $categoryId;
             $linkVariant->save();
-                    
         }
-        return redirect()->route('link.index');
-          
+        return response()->json([
+            'messgae'=>"Created"
+        ]);
+    } else {
+        return response()->json([
+            'messgae'=>"Last Error"
+        ]);    
     }
+}
 
     /**
      * Display the specified resource.
